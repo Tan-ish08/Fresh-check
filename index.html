@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Food Expiry Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 20px;
+            color: #333;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        nav {
+            background-color: #333;
+            padding: 10px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+        }
+
+        section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        h2 {
+            color: #4CAF50;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+
+        input,
+        select {
+            padding: 8px;
+            margin-top: 5px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .green {
+            background-color: #c8e6c9;
+        }
+
+        .yellow {
+            background-color: #fff9c4;
+        }
+
+        .red {
+            background-color: #ffcdd2;
+        }
+
+        p.error {
+            color: red;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            border-radius: 5px;
+        }
+
+        aside {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff9c4;
+            border: 1px solid #f0e68c;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Food Expiry Tracker</h1>
+        <p>Keep track of your food items and their expiry dates</p>
+    </header>
+
+    <nav>
+        <a href="#add">Add Item</a>
+        <a href="#list">Item List</a>
+        <a href="#about">About</a>
+    </nav>
+
+    <!-- Add Food Item Form -->
+    <section id="add">
+        <h2>Add a Food Item</h2>
+        <form onsubmit="return false;">
+            <label for="fname">Food Name:</label>
+            <input type="text" id="fname" placeholder="e.g. Milk">
+
+            <label for="fcat">Category:</label>
+            <select id="fcat">
+                <option value="Dairy">Dairy</option>
+                <option value="Fruit">Fruit</option>
+                <option value="Vegetable">Vegetable</option>
+                <option value="Meat">Meat</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label for="fdate">Expiry Date:</label>
+            <input type="date" id="fdate">
+
+            <br>
+            <button onclick="addItem()">Add Item</button>
+        </form>
+        <p class="error" id="msg"></p>
+    </section>
+
+    <!-- Food Items Table -->
+    <section id="list">
+        <h2>Your Food Items</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Expiry Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="foodTable">
+            </tbody>
+        </table>
+    </section>
+
+    <aside>
+        <h3>Status Guide</h3>
+        <ul>
+            <li><b style="color:green;">Fresh</b> - More than 3 days left</li>
+            <li><b style="color:orange;">Expiring Soon</b> - 3 days or less</li>
+            <li><b style="color:red;">Expired</b> - Past expiry date</li>
+        </ul>
+    </aside>
+
+    <!-- About Section -->
+    <article id="about">
+        <h2>About This Tracker</h2>
+        <p>This is a <b>simple food expiry tracker</b> to help you reduce food waste. Add your food items and monitor
+            their freshness status.</p>
+        <p><i>Built with HTML, CSS, and JavaScript.</i></p>
+    </article>
+
+    <footer>
+        <p>&copy; 2026 Food Expiry Tracker. All rights reserved.</p>
+    </footer>
+
+    <script>
+        var saved = localStorage.getItem("foodItems");
+        var items = saved ? JSON.parse(saved) : [];
+
+        // show saved items on page load
+        displayItems();
+
+        function addItem() {
+            var name = document.getElementById("fname").value;
+            var cat = document.getElementById("fcat").value;
+            var date = document.getElementById("fdate").value;
+            var msg = document.getElementById("msg");
+
+            // Form validation
+            if (name == "" || date == "") {
+                msg.innerHTML = "Please fill in all fields!";
+                return;
+            }
+            msg.innerHTML = "";
+
+            var item = { name: name, category: cat, expiry: date };
+            items.push(item);
+
+            document.getElementById("fname").value = "";
+            document.getElementById("fdate").value = "";
+
+            localStorage.setItem("foodItems", JSON.stringify(items));
+            displayItems();
+        }
+
+        function displayItems() {
+            var table = document.getElementById("foodTable");
+            table.innerHTML = "";
+
+            for (var i = 0; i < items.length; i++) {
+                var today = new Date();
+                var expDate = new Date(items[i].expiry);
+                var diff = Math.floor((expDate - today) / (1000 * 60 * 60 * 24));
+
+                var status = "";
+                var color = "";
+
+                if (diff < 0) {
+                    status = "Expired";
+                    color = "red";
+                } else if (diff <= 3) {
+                    status = "Expiring Soon";
+                    color = "yellow";
+                } else {
+                    status = "Fresh";
+                    color = "green";
+                }
+
+                var textColor = "green";
+                if (diff < 0) {
+                    textColor = "red";
+                } else if (diff <= 3) {
+                    textColor = "orange";
+                }
+
+                var row = "<tr class='" + color + "'>";
+                row = row + "<td>" + items[i].name + "</td>";
+                row = row + "<td>" + items[i].category + "</td>";
+                row = row + "<td>" + items[i].expiry + "</td>";
+                row = row + "<td><b style='color:" + textColor + ";'>" + status + "</b></td>";
+                row = row + "<td><button onclick='removeItem(" + i + ")'>Delete</button></td>";
+                row = row + "</tr>";
+
+                table.innerHTML = table.innerHTML + row;
+            }
+        }
+
+        function removeItem(index) {
+            items.splice(index, 1);
+            localStorage.setItem("foodItems", JSON.stringify(items));
+            displayItems();
+        }
+    </script>
+
+</body>
+
+</html>
